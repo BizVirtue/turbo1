@@ -13,8 +13,18 @@
             padding: 20px;
             text-align: center;
         }
-        #loginBtn {
+        #loginBtnCustom {
             margin-top: 40px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #loginBtnCustom:hover {
+            background-color: #357ae8;
         }
     </style>
 
@@ -39,30 +49,17 @@
             const userEmail = decoded.email || "";
             const userUID = decoded.sub || "";
 
-            // Build string for Kodular
             const sendStr = "LOGIN_OK||" + userEmail + "||" + userUID;
 
-            // →→ NORMAL MODE: Kodular WebViewer bridge
+            // →→ Kodular WebViewer bridge
             if (window.AppInventor && window.AppInventor.setWebViewString) {
                 window.AppInventor.setWebViewString(sendStr);
             }
             else {
-                // →→ BROWSER TEST MODE
                 console.log("Would send to Kodular:", sendStr);
-
-                // (backup) try postMessage for iframe test
                 try {
-                    window.parent.postMessage(
-                        JSON.stringify({
-                            status: "success",
-                            email: userEmail,
-                            uid: userUID
-                        }),
-                        "*"
-                    );
-                } catch (e) {
-                    console.warn("postMessage failed:", e);
-                }
+                    window.parent.postMessage(JSON.stringify({status:"success", email:userEmail, uid:userUID}), "*");
+                } catch(e){ console.warn(e); }
             }
         }
 
@@ -73,16 +70,16 @@
                 callback: handleCredentialResponse
             });
 
-            google.accounts.id.renderButton(
-                document.getElementById("loginBtn"),
-                { theme: "outline", size: "large" }
-            );
+            // Attach onclick to custom button
+            document.getElementById("loginBtnCustom").onclick = function() {
+                google.accounts.id.prompt(); // Open Google login popup
+            };
         };
     </script>
 </head>
 
 <body>
     <h2>Sign in with Google</h2>
-    <div id="loginBtn"></div>
+    <button id="loginBtnCustom">Sign in with Google</button>
 </body>
 </html>
