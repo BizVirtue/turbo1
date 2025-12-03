@@ -1,66 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>Google Login</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Load Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <style>
-    body { font-family: Arial; text-align: center; padding-top: 40px; }
-    button {
-      padding: 15px 25px;
-      background-color: #4285F4;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 18px;
-    }
-  </style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+        #loginBtn {
+            margin-top: 40px;
+        }
+    </style>
+
+    <script>
+        // ======== YOUR GOOGLE CLIENT ID =========
+        const CLIENT_ID = "876075107252-f9ergp6nj1ho29ipkqahhe77df5gv1nn.apps.googleusercontent.com";
+
+        // ==== Decode JWT Token ====
+        function decodeJwtResponse(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        // ==== Handle login result ====
+        function handleCredentialResponse(response) {
+            const decoded = decodeJwtResponse(response.credential);
+
+            // Extract email + unique Google user ID
+            const userEmail = decoded.email;
+            const userUID = decoded.sub;
+
+            // Prepare JSON to send back to Kodular WebViewer
+            const msg = JSON.stringify({
+                status: "success",
+                email: userEmail,
+                uid: userUID
+            });
+
+            // Send back into Kodular WebViewer
+            window.parent.postMessage(msg, "*");
+        }
+
+        // ==== Initialize Google Login Button ====
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: CLIENT_ID,
+                callback: handleCredentialResponse
+            });
+
+            google.accounts.id.renderButton(
+                document.getElementById("loginBtn"),
+                { theme: "outline", size: "large" }
+            );
+        };
+    </script>
 </head>
 
 <body>
-  <h2>Sign in with Google</h2>
-  <button onclick="googleLogin()">Login</button>
-
-<script>
-  // -------- FIREBASE CONFIG --------
-  const firebaseConfig = {
-      apiKey: "AIzaSyDvp2RxHDdG91cyvIG-vmDkgbi1L0sKeP4",
-      authDomain: "turbo1turboone.firebaseapp.com",
-      projectId: "turbo1turboone"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-
-  // Google Login Function
-  function googleLogin() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-
-      firebase.auth()
-        .signInWithPopup(provider)
-        .then((result) => {
-            const user = result.user;
-
-            const data = {
-                email: user.email,
-                uid: user.uid,
-                name: user.displayName,
-                photo: user.photoURL,
-                token: result.user.accessToken
-            };
-
-            // Send data to Kodular WebViewer
-            window.AppInventor.setWebViewString("LOGIN_OK||" + user.email + "||" + user.uid + "||" + (user.displayName || "") + "||" + (result.user.accessToken || ""));
-        })
-        .catch((error) => {
-            window.AppInventor.setWebViewString("ERROR: " + error.message);
-        });
-  }
-</script>
-
+    <h2>Sign in with Google</h2>
+    <div id="loginBtn"></div>
 </body>
 </html>
