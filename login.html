@@ -54,7 +54,7 @@
             };
 
             // Send data to Kodular WebViewer
-            indow.AppInventor.setWebViewString("LOGIN_OK||" + user.email + "||" + user.uid + "||" + (user.displayName || "") + "||" + (result.user.accessToken || ""));
+            window.AppInventor.setWebViewString("LOGIN_OK||" + user.email + "||" + user.uid + "||" + (user.displayName || "") + "||" + (result.user.accessToken || ""));
         })
         .catch((error) => {
             window.AppInventor.setWebViewString("ERROR: " + error.message);
