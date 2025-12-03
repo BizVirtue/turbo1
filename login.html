@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Google Login</title>
+
+  <!-- Load Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+
+  <style>
+    body { font-family: Arial; text-align: center; padding-top: 40px; }
+    button {
+      padding: 15px 25px;
+      background-color: #4285F4;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Sign in with Google</h2>
+  <button onclick="googleLogin()">Login</button>
+
+<script>
+  // -------- FIREBASE CONFIG --------
+  const firebaseConfig = {
+      apiKey: "AIzaSyDvp2RxHDdG91cyvIG-vmDkgbi1L0sKeP4",
+      authDomain: "turbo1turboone.firebaseapp.com",
+      projectId: "turbo1turboone"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  // Google Login Function
+  function googleLogin() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+
+      firebase.auth()
+        .signInWithPopup(provider)
+        .then((result) => {
+            const user = result.user;
+
+            const data = {
+                email: user.email,
+                uid: user.uid,
+                name: user.displayName,
+                photo: user.photoURL,
+                token: result.user.accessToken
+            };
+
+            // Send data to Kodular WebViewer
+            window.AppInventor.setWebViewString(JSON.stringify(data));
+        })
+        .catch((error) => {
+            window.AppInventor.setWebViewString("ERROR: " + error.message);
+        });
+  }
+</script>
+
+</body>
+</html>
