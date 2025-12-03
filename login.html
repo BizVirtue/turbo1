@@ -32,23 +32,38 @@
             return JSON.parse(jsonPayload);
         }
 
-        // ==== Handle login result ====
+        // ==== Handle login result and send to Kodular ====
         function handleCredentialResponse(response) {
             const decoded = decodeJwtResponse(response.credential);
 
-            // Extract email + unique Google user ID
-            const userEmail = decoded.email;
-            const userUID = decoded.sub;
+            const userEmail = decoded.email || "";
+            const userUID = decoded.sub || "";
 
-            // Prepare JSON to send back to Kodular WebViewer
-            const msg = JSON.stringify({
-                status: "success",
-                email: userEmail,
-                uid: userUID
-            });
+            // Build string for Kodular
+            const sendStr = "LOGIN_OK||" + userEmail + "||" + userUID;
 
-            // Send back into Kodular WebViewer
-            window.parent.postMessage(msg, "*");
+            // →→ NORMAL MODE: Kodular WebViewer bridge
+            if (window.AppInventor && window.AppInventor.setWebViewString) {
+                window.AppInventor.setWebViewString(sendStr);
+            }
+            else {
+                // →→ BROWSER TEST MODE
+                console.log("Would send to Kodular:", sendStr);
+
+                // (backup) try postMessage for iframe test
+                try {
+                    window.parent.postMessage(
+                        JSON.stringify({
+                            status: "success",
+                            email: userEmail,
+                            uid: userUID
+                        }),
+                        "*"
+                    );
+                } catch (e) {
+                    console.warn("postMessage failed:", e);
+                }
+            }
         }
 
         // ==== Initialize Google Login Button ====
