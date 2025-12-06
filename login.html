@@ -1,71 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+const CLIENT_ID = "YOUR_CLIENT_ID";
 
-    <!-- Google Identity Services -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+function decodeJwtResponse(token) {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+  return JSON.parse(jsonPayload);
+}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            text-align: center;
-        }
-        #loginBtn {
-            margin-top: 40px;
-            display: inline-block;
-        }
-    </style>
+function handleCredentialResponse(response) {
+  const decoded = decodeJwtResponse(response.credential);
+  const userEmail = decoded.email || "";
+  const userUID = decoded.sub || "";
 
-    <script>
-        const CLIENT_ID = "876075107252-f9ergp6nj1ho29ipkqahhe77df5gv1nn.apps.googleusercontent.com";
+  // Redirect to success URL with email and UID in query string
+  window.location.href = "https://bizvirtue.github.io/turbo1/login_success.html?email=" 
+                          + encodeURIComponent(userEmail) 
+                          + "&uid=" + encodeURIComponent(userUID);
+}
 
-        // Decode JWT from Google
-        function decodeJwtResponse(token) {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(
-                atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join('')
-            );
-            return JSON.parse(jsonPayload);
-        }
-
-        // Handle Google login response
-        function handleCredentialResponse(response) {
-            const decoded = decodeJwtResponse(response.credential);
-            const email = decoded.email || "";
-            const uid = decoded.sub || "";
-
-            const redirectUrl =
-                "https://bizvirtue.github.io/turbo1/login_success.html"
-                + "?email=" + encodeURIComponent(email)
-                + "&uid=" + encodeURIComponent(uid);
-
-            window.location.href = redirectUrl;
-        }
-
-        window.onload = function () {
-            google.accounts.id.initialize({
-                client_id: CLIENT_ID,
-                callback: handleCredentialResponse
-            });
-
-            google.accounts.id.renderButton(
-                document.getElementById("loginBtn"),
-                { theme: "outline", size: "large" }
-            );
-
-            google.accounts.id.prompt();
-        };
-    </script>
+window.onload = function () {
+  google.accounts.id.initialize({
+      client_id: CLIENT_ID,
+      callback: handleCredentialResponse
+  });
+  google.accounts.id.prompt(); // automatically show login popup
+};
+</script>
 </head>
-
 <body>
-    <h2>Sign in with Google</h2>
-    <div id="loginBtn"></div>
+<h2>Signing you in...</h2>
 </body>
 </html>
