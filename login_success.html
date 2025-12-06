@@ -1,45 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Success</title>
+<meta charset="UTF-8">
+<title>Login Success</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            text-align: center;
-        }
-    </style>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        text-align: center;
+    }
+</style>
 
-    <script>
-        function getParameterByName(name) {
-            const url = window.location.href;
-            name = name.replace(/[\[\]]/g, "\\$&");
-            const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
-            const results = regex.exec(url);
-            if (!results) return "";
-            if (!results[2]) return "";
-            return decodeURIComponent(results[2].replace(/\+/g, " "));
-        }
+<script>
+// ================================
+// Extract URL parameters
+// ================================
+function getParameterByName(name) {
+    name = name.replace(/[\[\]]/g, '\\$&');
+    const url = window.location.href;
+    const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+    const results = regex.exec(url);
 
-        window.onload = function () {
-            const email = getParameterByName("email");
-            const uid = getParameterByName("uid");
+    if (!results) return null;
+    if (!results[2]) return "";
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
 
-            const appDeepLink =
-                "myapp://login"
-                + "?email=" + encodeURIComponent(email)
-                + "&uid=" + encodeURIComponent(uid);
+window.onload = function () {
 
-            window.location.href = appDeepLink;
-        };
-    </script>
+    const email = getParameterByName("email") || "";
+    const uid   = getParameterByName("uid") || "";
+
+    document.getElementById("email").innerText = email;
+    document.getElementById("uid").innerText = uid;
+
+    // ====== IMPORTANT ======
+    // Automatically return to Android App (Kodular)
+    // Kodular will detect this Result URI via ActivityStarter
+    // ========================
+};
+</script>
 </head>
 
 <body>
-    <h2>Login Success!</h2>
-    <p>Redirecting back to the app... coba</p>
+    <h2>Login Successful!</h2>
+    <p><b>Email:</b> <span id="email"></span></p>
+    <p><b>UID:</b> <span id="uid"></span></p>
+    <p>You may now close this window and return to the app.</p>
 </body>
 </html>
