@@ -1,73 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Google Login</title>
+  <meta charset="UTF-8">
+  <title>Google Login</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 100px; }
+    .btn { padding: 15px 30px; background: #4285F4; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; }
+  </style>
+</head>
+<body>
 
-<!-- Google Identity Services -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        padding: 20px;
-        text-align: center;
-    }
-    #googleBtn {
-        margin-top: 40px;
-        display: inline-block;
-    }
-</style>
+<h2>Login with Google</h2>
+<button class="btn" id="googleBtn">Sign in with Google</button>
 
 <script>
-// -------------------------------
-// YOUR GOOGLE CLIENT ID
-// -------------------------------
-const CLIENT_ID = "876075107252-f9ergp6nj1ho29ipkqahhe77df5gv1nn.apps.googleusercontent.com";
+document.getElementById("googleBtn").onclick = function() {
+    const clientId = "876075107252-f9ergp6nj1ho29ipkqahhe77df5gv1nn.apps.googleusercontent.com";
 
-// Decode JWT (Google credential)
-function decodeJwtResponse(token) {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    return JSON.parse(jsonPayload);
-}
-
-// Handle Google Login result
-function handleCredentialResponse(response) {
-    const decoded = decodeJwtResponse(response.credential);
-
-    const userEmail = encodeURIComponent(decoded.email || "");
-    const userUID   = encodeURIComponent(decoded.sub || "");
-
-    // Redirect back to success page with query params
-    window.location.href =
-        "https://bizvirtue.github.io/turbo1/login_success.html"
-        + "?email=" + userEmail
-        + "&uid=" + userUID;
-}
-
-window.onload = function () {
     google.accounts.id.initialize({
-        client_id: CLIENT_ID,
+        client_id: clientId,
         callback: handleCredentialResponse
     });
 
-    google.accounts.id.renderButton(
-        document.getElementById("googleBtn"),
-        { theme: "outline", size: "large", width: 300 }
-    );
-
-    // Optional → show login prompt automatically
-    // google.accounts.id.prompt();
+    google.accounts.id.prompt();
 };
-</script>
-</head>
 
-<body>
-    <h2>Sign in with Google</h2>
-    <div id="googleBtn"></div>
+function handleCredentialResponse(response) {
+    const jwt = response.credential;
+    window.location.href = "login_success.html?jwt=" + encodeURIComponent(jwt);
+}
+</script>
+
 </body>
 </html>
