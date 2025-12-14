@@ -20,9 +20,9 @@
 </style>
 
 <script>
-// -------------------------------
+// ================================
 // YOUR GOOGLE CLIENT ID
-// -------------------------------
+// ================================
 const CLIENT_ID = "876075107252-f9ergp6nj1ho29ipkqahhe77df5gv1nn.apps.googleusercontent.com";
 
 // Decode JWT (Google credential)
@@ -38,15 +38,20 @@ function decodeJwtResponse(token) {
 // Handle Google Login result
 function handleCredentialResponse(response) {
     const decoded = decodeJwtResponse(response.credential);
+    const userEmail = decoded.email || "";
+    const userUID   = decoded.sub || "";
 
-    const userEmail = encodeURIComponent(decoded.email || "");
-    const userUID   = encodeURIComponent(decoded.sub || "");
+    // ===== Send directly to Kodular WebViewer =====
+    // postMessage sends to WebViewer in Kodular
+    const msg = JSON.stringify({ email: userEmail, uid: userUID });
+    if (window.parent) {
+        window.parent.postMessage(msg, "*");
+    } else {
+        console.log("WebViewer message:", msg);
+    }
 
-    // Redirect back to success page with query params
-    window.location.href =
-        "https://bizvirtue.github.io/turbo1/login_success.html"
-        + "?email=" + userEmail
-        + "&uid=" + userUID;
+    // Optional: Show success message in page
+    document.getElementById("status").innerText = "Login successful! You may now return to the app.";
 }
 
 window.onload = function () {
@@ -59,9 +64,6 @@ window.onload = function () {
         document.getElementById("googleBtn"),
         { theme: "outline", size: "large", width: 300 }
     );
-
-    // Optional → show login prompt automatically
-    // google.accounts.id.prompt();
 };
 </script>
 </head>
@@ -69,5 +71,6 @@ window.onload = function () {
 <body>
     <h2>Sign in with Google</h2>
     <div id="googleBtn"></div>
+    <p id="status" style="margin-top:20px; color:green;"></p>
 </body>
 </html>
