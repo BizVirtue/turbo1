@@ -10,6 +10,12 @@
         padding: 20px;
         text-align: center;
     }
+    button {
+        margin-top: 20px;
+        padding: 12px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
 </style>
 
 <script>
@@ -34,19 +40,33 @@ window.onload = function () {
 
     document.getElementById("email").innerText = email;
     document.getElementById("uid").innerText = uid;
-
-    // ====== IMPORTANT ======
-    // Automatically return to Android App (Kodular)
-    // Kodular will detect this Result URI via ActivityStarter
-    // ========================
 };
+
+// ===== Return / Close logic =====
+function returnToApp() {
+    // Try to go back to previous page
+    window.history.back();
+
+    // Fallback: try closing tab (may fail on Chrome)
+    setTimeout(function () {
+        window.close();
+    }, 300);
+}
 </script>
 </head>
 
 <body>
     <h2>Login Successful!</h2>
+
     <p><b>Email:</b> <span id="email"></span></p>
     <p><b>UID:</b> <span id="uid"></span></p>
-    <p>You may now close this window and return to the app.</p>
+
+    <p>Please return to the app.</p>
+
+    <button onclick="returnToApp()">Return to App</button>
+
+    <p style="font-size:12px; color:#666; margin-top:15px;">
+        If nothing happens, press your phone’s BACK button.
+    </p>
 </body>
 </html>
