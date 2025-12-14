@@ -17,12 +17,16 @@
         margin-top: 40px;
         display: inline-block;
     }
+    #status {
+        margin-top: 20px;
+        color: green;
+    }
 </style>
 
 <script>
-// ================================
+// -------------------------------
 // YOUR GOOGLE CLIENT ID
-// ================================
+// -------------------------------
 const CLIENT_ID = "876075107252-f9ergp6nj1ho29ipkqahhe77df5gv1nn.apps.googleusercontent.com";
 
 // Decode JWT (Google credential)
@@ -41,8 +45,7 @@ function handleCredentialResponse(response) {
     const userEmail = decoded.email || "";
     const userUID   = decoded.sub || "";
 
-    // ===== Send directly to Kodular WebViewer =====
-    // postMessage sends to WebViewer in Kodular
+    // Send result to app (MIT App Inventor / WebViewer)
     const msg = JSON.stringify({ email: userEmail, uid: userUID });
     if (window.parent) {
         window.parent.postMessage(msg, "*");
@@ -50,7 +53,7 @@ function handleCredentialResponse(response) {
         console.log("WebViewer message:", msg);
     }
 
-    // Optional: Show success message in page
+    // Show success message
     document.getElementById("status").innerText = "Login successful! You may now return to the app.";
 }
 
@@ -71,6 +74,6 @@ window.onload = function () {
 <body>
     <h2>Sign in with Google</h2>
     <div id="googleBtn"></div>
-    <p id="status" style="margin-top:20px; color:green;"></p>
+    <p id="status"></p>
 </body>
 </html>
